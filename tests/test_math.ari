@@ -127,7 +127,7 @@ fn main() -> i32 {
     mem_free(s);
 
     s = str_new("tanh(0)=0");
-    fails += check_f64(s, tanh_approx(0.0), 0.0, tol);
+    fails += check_f64(s, tanh_f(0.0), 0.0, tol);
     mem_free(s);
 
     // --- Summary ---

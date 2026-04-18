@@ -1,6 +1,13 @@
-// aricode-stdlib: math/activation.ari
-// Neural network activation functions
-// All functions take and return f64.
+// aricode-math: activation.ari
+// Neural network activation functions.
+//
+// Scalar forms here take/return f64 and are convenient for one-off
+// math.  For hot inner-loop use over arrays, prefer the AVX2 builtins
+// the compiler ships:
+//   arr_f64_relu(buf)     — in-place ReLU, ~4× scalar
+//   arr_f64_sigmoid(buf)  — in-place σ, 4-wide packed exp + vdivpd
+//   arr_f64_tanh(buf)     — in-place tanh via the same shared exp body
+// (see the aricode-ml dense layer for usage.)
 
 fn sigmoid(x: f64) -> f64 {
     // sigmoid(x) = 1 / (1 + exp(-x))
@@ -30,7 +37,7 @@ fn leaky_relu(x: f64) -> f64 {
     return x * 0.01;
 }
 
-fn tanh_approx(x: f64) -> f64 {
+fn tanh_f(x: f64) -> f64 {
     // tanh(x) = (exp(2x) - 1) / (exp(2x) + 1)
     let e2x: f64 = math_exp(2.0 * x);
     return (e2x - 1.0) / (e2x + 1.0);
