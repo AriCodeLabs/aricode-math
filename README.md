@@ -30,7 +30,7 @@ Both modes deliver honest, full-range sin/cos with zero caveats:
 
 | Mode | How | Accuracy | Relative speed (vs `-O2` libm) |
 |------|-----|----------|-------------------------------|
-| SSE2 default (`aric file.ari`) | quick-path poly for \|x\|≤π/4, octant-reduced 5-term minimax + SSE4.1 `roundsd` + FMA3 Cody-Waite for larger inputs | **~1e-12 relative** across whole real line | **~1.0× (equals libm)**; actually faster in hot sin/cos loops |
+| SSE2 default (`aric file.ari`) | quick-path poly for \|x\|≤π/4, octant-reduced 5-term minimax + SSE4.1 `roundsd` + FMA3 Cody-Waite for larger inputs | **~1e-12 relative** across whole real line | ~1.25× slower on pure sin/cos loops, ~1.72× on mixed workloads |
 | x87 (`aric --precision=15 file.ari`) | FSIN/FCOS with hardware FPREM1 | **IEEE-754 80-bit full precision** (~15 digits) | ~9× slower |
 
 Measured examples (SSE2 default, 15-digit print):
