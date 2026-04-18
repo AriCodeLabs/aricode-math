@@ -1,0 +1,37 @@
+// aricode-stdlib: math/activation.ari
+// Neural network activation functions
+// All functions take and return f64.
+
+fn sigmoid(x: f64) -> f64 {
+    // sigmoid(x) = 1 / (1 + exp(-x))
+    let neg_x: f64 = 0.0 - x;
+    let e: f64 = math_exp(neg_x);
+    return 1.0 / (1.0 + e);
+}
+
+fn sigmoid_deriv(x: f64) -> f64 {
+    // sigmoid'(x) = sigmoid(x) * (1 - sigmoid(x))
+    let s: f64 = sigmoid(x);
+    return s * (1.0 - s);
+}
+
+fn relu(x: f64) -> f64 {
+    if (x > 0.0) { return x; }
+    return 0.0;
+}
+
+fn relu_deriv(x: f64) -> f64 {
+    if (x > 0.0) { return 1.0; }
+    return 0.0;
+}
+
+fn leaky_relu(x: f64) -> f64 {
+    if (x > 0.0) { return x; }
+    return x * 0.01;
+}
+
+fn tanh_approx(x: f64) -> f64 {
+    // tanh(x) = (exp(2x) - 1) / (exp(2x) + 1)
+    let e2x: f64 = math_exp(2.0 * x);
+    return (e2x - 1.0) / (e2x + 1.0);
+}
