@@ -1,0 +1,36 @@
+// aricode-math: quick demo.
+//
+// Compile:  aric examples/demo.ari -o demo
+// Run:      ./demo
+//
+// The aricode compiler ships sin/cos/exp/log/sqrt/abs as builtins —
+// you call them directly.  This stdlib adds extras (tan, pow,
+// constants, conversions, activations, core utilities).
+
+import "../trig.ari" as trig;
+import "../activation.ari" as act;
+import "../core.ari" as core;
+
+fn main() -> i32 {
+    // --- builtins (no namespace) ---
+    print_str("sin(pi/4):");   print_float(math_sin(0.7853981));
+    print_str("cos(pi/4):");   print_float(math_cos(0.7853981));
+    print_str("exp(1):");      print_float(math_exp(1.0));
+    print_str("sqrt(2):");     print_float(math_sqrt(2.0));
+
+    // --- stdlib additions from trig.ari ---
+    print_str("tan(pi/4):");   print_float(trig.math_tan(0.7853981));
+    print_str("pow(2,10):");   print_float(trig.math_pow(2.0, 10));
+    print_str("deg_to_rad(90):"); print_float(trig.deg_to_rad(90.0));
+
+    // --- activations (ML building blocks) ---
+    print_str("sigmoid(0):");  print_float(act.sigmoid(0.0));
+    print_str("relu(-3):");    print_float(act.relu(0.0 - 3.0));
+
+    // --- core utilities ---
+    print_str("clamp(42,0,10):"); print_float(core.math_clamp(42.0, 0.0, 10.0));
+    print_str("min_i(7,3):");
+    print_int(core.min_i(7, 3));
+
+    return 0;
+}

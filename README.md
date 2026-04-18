@@ -1,43 +1,98 @@
-# aricode-stdlib-math
+# aricode-math
 
-Math functions for Aricode -- trigonometry, exponentiation, and activation functions for ML.
+Math stdlib for the [aricode](https://github.com/Lynx-Boss/aricode)
+compiler: trigonometry extras, core utilities, activation functions
+for ML, and high-precision float printing.
 
-## Functions
+## Layout
+
+```
+aricode-math/
+├── trig.ari         — tan, pow, pi, e, deg/rad conversions
+├── activation.ari   — sigmoid, relu, leaky_relu, tanh, + derivatives
+├── core.ari         — min/max/clamp/sign/floor/ceil/fmod (f64 and i32)
+├── print.ari        — high-precision f64 printing via print_char
+├── examples/
+│   └── demo.ari
+└── tests/
+    └── test_math.ari
+```
+
+## Relation to aricode builtins
+
+The aricode compiler already ships as **builtins**: `math_sin`, `math_cos`,
+`math_exp`, `math_log`, `math_sqrt`, `math_abs`. Call them directly — no
+import needed. This module adds what the builtin set is missing.
+
+### Known limitation — sin/cos large inputs
+
+The default SSE2 builtin `math_sin`/`math_cos` are accurate for
+|x| ≲ π. For larger inputs use `aric --precision=15` (x87 FSIN, full
+IEEE-754 range). A compiler-level range-reduction fix is on the
+roadmap.
+
+## Public API
 
 ### trig.ari
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `math_sin` | `fn math_sin(x: f64) -> f64` | Sine (Taylor series, radians) |
-| `math_cos` | `fn math_cos(x: f64) -> f64` | Cosine (Taylor series, radians) |
-| `math_tan` | `fn math_tan(x: f64) -> f64` | Tangent (sin/cos) |
-| `math_pow` | `fn math_pow(base: f64, n: i32) -> f64` | Integer exponentiation by squaring |
+| Function | Description |
+|----------|-------------|
+| `math_tan(x)` | Tangent (sin/cos) — shares the sin/cos range limitation |
+| `math_pow(base, n)` | Integer exponentiation by squaring, `O(log n)` |
+| `math_pi()` / `math_e()` | Constants |
+| `deg_to_rad(d)` / `rad_to_deg(r)` | Degree ↔ radian conversion |
 
 ### activation.ari
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `sigmoid` | `fn sigmoid(x: f64) -> f64` | Logistic sigmoid |
-| `sigmoid_deriv` | `fn sigmoid_deriv(x: f64) -> f64` | Sigmoid derivative |
-| `relu` | `fn relu(x: f64) -> f64` | Rectified Linear Unit |
-| `relu_deriv` | `fn relu_deriv(x: f64) -> f64` | ReLU derivative |
-| `leaky_relu` | `fn leaky_relu(x: f64) -> f64` | Leaky ReLU (alpha = 0.01) |
-| `tanh_approx` | `fn tanh_approx(x: f64) -> f64` | Hyperbolic tangent approximation |
+| Function | Description |
+|----------|-------------|
+| `sigmoid(x)` / `sigmoid_deriv(x)` | Logistic σ and σ' |
+| `relu(x)` / `relu_deriv(x)` | Rectified Linear Unit and derivative |
+| `leaky_relu(x)` | α = 0.01 |
+| `tanh_f(x)` | Hyperbolic tangent |
+
+### core.ari
+
+| Function | Description |
+|----------|-------------|
+| `math_min/max/clamp(a, b[, c])` | f64 |
+| `math_sign(x)` | Returns -1.0, 0.0, or 1.0 |
+| `math_floor_i(x)` / `math_ceil_i(x)` | f64 → i32 |
+| `math_fmod(x, y)` | Floating-point modulo |
+| `min_i/max_i/clamp_i(...)` | i32 versions |
+| `abs_i(x)` | i32 absolute value |
+
+### print.ari
+
+| Function | Description |
+|----------|-------------|
+| `print_f64(x, digits)` | Print f64 with N decimal digits, no trailing newline |
+| `print_int_raw(n)` | Print i32, no trailing newline |
 
 ## Usage
 
-```aricode
-import "math/trig.ari";
-import "math/activation.ari";
+```
+import "aricode-math/trig.ari" as trig;
+import "aricode-math/activation.ari" as act;
 
 fn main() -> i32 {
-    let angle: f64 = 1.5708;
-    let s: f64 = math_sin(angle);
-    let a: f64 = relu(s);
-    print_f64(a);
+    print_float(math_sqrt(2.0));          // builtin, no import
+    print_float(trig.math_pow(2.0, 10));  // 1024
+    print_float(act.sigmoid(0.0));        // 0.5
     return 0;
 }
 ```
+
+See [`examples/demo.ari`](examples/demo.ari).
+
+## Running the tests
+
+```
+aric tests/test_math.ari -o /tmp/test_math
+/tmp/test_math
+```
+
+Expected output ends with `ALL TESTS PASSED / Failures: 0`.
 
 ## License
 

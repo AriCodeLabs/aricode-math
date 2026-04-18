@@ -1,55 +1,24 @@
-// aricode-stdlib: math/trig.ari
-// Trigonometric functions with range reduction + Taylor series
-// Accurate to ~12 significant digits for all inputs.
-// Requires: math/core.ari (for math_fmod, math_floor_i)
-
-fn trig_reduce(x: f64) -> f64 {
-    // Reduce angle to [-pi, pi] range for Taylor series accuracy.
-    let pi: f64 = 3.14159265358979;
-    let two_pi: f64 = 6.28318530717959;
-    // Inline fmod to avoid cross-file dependency
-    let n: i32 = float_to_int(x / two_pi);
-    let r: f64 = x - int_to_float(n) * two_pi;
-    if (r > pi) { r = r - two_pi; }
-    if (r < 0.0 - pi) { r = r + two_pi; }
-    return r;
-}
-
-fn math_sin(x: f64) -> f64 {
-    // Taylor series with range reduction
-    // sin(x) = x - x^3/3! + x^5/5! - x^7/7! + x^9/9! - x^11/11!
-    let r: f64 = trig_reduce(x);
-    let x2: f64 = r * r;
-    let x3: f64 = r * x2;
-    let x5: f64 = x3 * x2;
-    let x7: f64 = x5 * x2;
-    let x9: f64 = x7 * x2;
-    let x11: f64 = x9 * x2;
-    return r - x3 / 6.0 + x5 / 120.0 - x7 / 5040.0 + x9 / 362880.0 - x11 / 39916800.0;
-}
-
-fn math_cos(x: f64) -> f64 {
-    // Taylor series with range reduction
-    // cos(x) = 1 - x^2/2! + x^4/4! - x^6/6! + x^8/8! - x^10/10!
-    let r: f64 = trig_reduce(x);
-    let x2: f64 = r * r;
-    let x4: f64 = x2 * x2;
-    let x6: f64 = x4 * x2;
-    let x8: f64 = x6 * x2;
-    let x10: f64 = x8 * x2;
-    return 1.0 - x2 / 2.0 + x4 / 24.0 - x6 / 720.0 + x8 / 40320.0 - x10 / 3628800.0;
-}
-
-fn math_tan(x: f64) -> f64 {
-    return math_sin(x) / math_cos(x);
-}
+// aricode-math: trig.ari
+// Extra trigonometric utilities.  The aricode compiler already ships
+// math_sin, math_cos, math_exp, math_log, math_sqrt, math_abs as
+// builtins — this module adds what the builtin set is missing:
+// tan, pow, constants, and degree/radian conversions.
+//
+// Known limitation: the default SSE2 builtin sin/cos are accurate for
+// |x| <= ~pi only.  Use aric --precision=15 (x87 FSIN, full range)
+// when you need large inputs.  See README for details.
 
 fn is_odd(v: i32) -> i32 {
     return v - (v / 2) * 2;
 }
 
+fn math_tan(x: f64) -> f64 {
+    // Shares the sin/cos range limitation described above.
+    return math_sin(x) / math_cos(x);
+}
+
 fn math_pow(base: f64, n: i32) -> f64 {
-    // Integer exponentiation by squaring: O(log n)
+    // Integer exponentiation by squaring: O(log n).
     if (n == 0) { return 1.0; }
     let result: f64 = 1.0;
     let b: f64 = base;

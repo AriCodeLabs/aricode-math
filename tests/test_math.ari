@@ -1,0 +1,138 @@
+import "../core.ari";
+import "../trig.ari";
+import "../activation.ari";
+
+fn check_f64(name: i32, got: f64, want: f64, tol: f64) -> i32 {
+    let diff: f64 = got - want;
+    if (diff < 0.0) { diff = 0.0 - diff; }
+    str_println(name);
+    if (diff < tol) {
+        print_str("  PASS");
+        return 0;
+    }
+    print_str("  FAIL got:");
+    print_float(got);
+    print_str("  want:");
+    print_float(want);
+    return 1;
+}
+
+fn main() -> i32 {
+    let fails: i32 = 0;
+    let tol: f64 = 0.0001;
+    let s: i32 = 0;
+
+    print_str("=== MATH TEST SUITE ===");
+    print_str("");
+
+    // --- core.ari ---
+    print_str("--- core ---");
+    s = str_new("min(3,7)=3");
+    fails += check_f64(s, math_min(3.0, 7.0), 3.0, tol);
+    mem_free(s);
+
+    s = str_new("max(3,7)=7");
+    fails += check_f64(s, math_max(3.0, 7.0), 7.0, tol);
+    mem_free(s);
+
+    s = str_new("clamp(10,0,5)=5");
+    fails += check_f64(s, math_clamp(10.0, 0.0, 5.0), 5.0, tol);
+    mem_free(s);
+
+    s = str_new("sign(-7)=-1");
+    fails += check_f64(s, math_sign(0.0 - 7.0), 0.0 - 1.0, tol);
+    mem_free(s);
+
+    s = str_new("floor(3.7)=3");
+    fails += check_f64(s, int_to_float(math_floor_i(3.7)), 3.0, tol);
+    mem_free(s);
+
+    s = str_new("ceil(3.2)=4");
+    fails += check_f64(s, int_to_float(math_ceil_i(3.2)), 4.0, tol);
+    mem_free(s);
+
+    s = str_new("fmod(7.5,3)=1.5");
+    fails += check_f64(s, math_fmod(7.5, 3.0), 1.5, tol);
+    mem_free(s);
+
+    // --- trig.ari ---
+    print_str("");
+    print_str("--- trig ---");
+
+    s = str_new("sin(0)=0");
+    fails += check_f64(s, math_sin(0.0), 0.0, tol);
+    mem_free(s);
+
+    s = str_new("sin(pi/2)=1");
+    fails += check_f64(s, math_sin(1.5707963), 1.0, tol);
+    mem_free(s);
+
+    s = str_new("sin(pi)=~0");
+    fails += check_f64(s, math_sin(3.1415926), 0.0, 0.002);
+    mem_free(s);
+
+    s = str_new("cos(0)=1");
+    fails += check_f64(s, math_cos(0.0), 1.0, tol);
+    mem_free(s);
+
+    s = str_new("cos(pi/2)=0");
+    fails += check_f64(s, math_cos(1.5707963), 0.0, tol);
+    mem_free(s);
+
+    s = str_new("cos(pi)=~-1");
+    fails += check_f64(s, math_cos(3.1415926), 0.0 - 1.0, 0.002);
+    mem_free(s);
+
+    s = str_new("sin^2+cos^2=1 at x=0.7");
+    let sv: f64 = math_sin(0.7);
+    let cv: f64 = math_cos(0.7);
+    fails += check_f64(s, sv * sv + cv * cv, 1.0, tol);
+    mem_free(s);
+
+    // NOTE: builtin sin/cos (default SSE2) are accurate for |x| <= ~pi.
+    // For large-x range reduction, use `aric --precision=15` (x87 FSIN).
+    // See README.
+
+    s = str_new("pow(2,10)=1024");
+    fails += check_f64(s, math_pow(2.0, 10), 1024.0, tol);
+    mem_free(s);
+
+    s = str_new("pow(3,-2)=0.111");
+    fails += check_f64(s, math_pow(3.0, 0 - 2), 0.111111, 0.001);
+    mem_free(s);
+
+    // --- activation.ari ---
+    print_str("");
+    print_str("--- activation ---");
+
+    s = str_new("relu(5)=5");
+    fails += check_f64(s, relu(5.0), 5.0, tol);
+    mem_free(s);
+
+    s = str_new("relu(-3)=0");
+    fails += check_f64(s, relu(0.0 - 3.0), 0.0, tol);
+    mem_free(s);
+
+    s = str_new("leaky(-2)=-0.02");
+    fails += check_f64(s, leaky_relu(0.0 - 2.0), 0.0 - 0.02, tol);
+    mem_free(s);
+
+    s = str_new("sigmoid(0)=0.5");
+    fails += check_f64(s, sigmoid(0.0), 0.5, 0.01);
+    mem_free(s);
+
+    s = str_new("tanh(0)=0");
+    fails += check_f64(s, tanh_approx(0.0), 0.0, tol);
+    mem_free(s);
+
+    // --- Summary ---
+    print_str("");
+    print_str("=== RESULTS ===");
+    if (fails == 0) {
+        print_str("ALL TESTS PASSED");
+    }
+    print_str("Failures:");
+    print_int(fails);
+
+    return fails;
+}

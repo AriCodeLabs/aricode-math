@@ -1,0 +1,68 @@
+// aricode-stdlib: math/core.ari
+// Core math utilities: min, max, clamp, sign, floor, ceil
+// These are the building blocks used by all other math modules.
+
+fn math_min(a: f64, b: f64) -> f64 {
+    if (a < b) { return a; }
+    return b;
+}
+
+fn math_max(a: f64, b: f64) -> f64 {
+    if (a > b) { return a; }
+    return b;
+}
+
+fn math_clamp(x: f64, lo: f64, hi: f64) -> f64 {
+    if (x < lo) { return lo; }
+    if (x > hi) { return hi; }
+    return x;
+}
+
+fn math_sign(x: f64) -> f64 {
+    if (x > 0.0) { return 1.0; }
+    if (x < 0.0) { return 0.0 - 1.0; }
+    return 0.0;
+}
+
+fn math_floor_i(x: f64) -> i32 {
+    // Floor: largest integer <= x
+    let n: i32 = float_to_int(x);
+    let nf: f64 = int_to_float(n);
+    if (nf > x) { return n - 1; }
+    return n;
+}
+
+fn math_ceil_i(x: f64) -> i32 {
+    // Ceiling: smallest integer >= x
+    let n: i32 = float_to_int(x);
+    let nf: f64 = int_to_float(n);
+    if (nf < x) { return n + 1; }
+    return n;
+}
+
+fn math_fmod(x: f64, y: f64) -> f64 {
+    // Floating point modulo: x - floor(x/y) * y
+    let n: i32 = math_floor_i(x / y);
+    return x - int_to_float(n) * y;
+}
+
+fn min_i(a: i32, b: i32) -> i32 {
+    if (a < b) { return a; }
+    return b;
+}
+
+fn max_i(a: i32, b: i32) -> i32 {
+    if (a > b) { return a; }
+    return b;
+}
+
+fn clamp_i(x: i32, lo: i32, hi: i32) -> i32 {
+    if (x < lo) { return lo; }
+    if (x > hi) { return hi; }
+    return x;
+}
+
+fn abs_i(x: i32) -> i32 {
+    if (x < 0) { return 0 - x; }
+    return x;
+}
