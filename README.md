@@ -24,12 +24,13 @@ The aricode compiler already ships as **builtins**: `math_sin`, `math_cos`,
 `math_exp`, `math_log`, `math_sqrt`, `math_abs`. Call them directly — no
 import needed. This module adds what the builtin set is missing.
 
-### Known limitation — sin/cos large inputs
+### Precision modes
 
-The default SSE2 builtin `math_sin`/`math_cos` are accurate for
-|x| ≲ π. For larger inputs use `aric --precision=15` (x87 FSIN, full
-IEEE-754 range). A compiler-level range-reduction fix is on the
-roadmap.
+- **SSE2 default** (`aric file.ari`) — 5-6 digit accuracy, full range
+  via mod-2π pre-reduction. Fast path, typical for ML / graphics.
+- **x87 full precision** (`aric --precision=15 file.ari`) — 15+ digits
+  via FSIN/FCOS with hardware FPREM1 reduction. Use for finance,
+  scientific computation, or anywhere ULPs matter.
 
 ## Public API
 

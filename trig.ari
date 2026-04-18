@@ -3,17 +3,12 @@
 // math_sin, math_cos, math_exp, math_log, math_sqrt, math_abs as
 // builtins — this module adds what the builtin set is missing:
 // tan, pow, constants, and degree/radian conversions.
-//
-// Known limitation: the default SSE2 builtin sin/cos are accurate for
-// |x| <= ~pi only.  Use aric --precision=15 (x87 FSIN, full range)
-// when you need large inputs.  See README for details.
 
 fn is_odd(v: i32) -> i32 {
     return v - (v / 2) * 2;
 }
 
 fn math_tan(x: f64) -> f64 {
-    // Shares the sin/cos range limitation described above.
     return math_sin(x) / math_cos(x);
 }
 
